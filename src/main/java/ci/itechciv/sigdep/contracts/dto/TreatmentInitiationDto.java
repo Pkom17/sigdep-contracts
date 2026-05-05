@@ -61,6 +61,10 @@ public record TreatmentInitiationDto(
         String educationLevel,
         String religion,
 
+        // Pediatric extension. Null when the enrolment is not pediatric
+        // (i.e. no pediatric-specific obs were captured on the form).
+        PediatricInitiationDto pediatric,
+
         Map<String, Object> extraData,
         Boolean voided
 ) {}
