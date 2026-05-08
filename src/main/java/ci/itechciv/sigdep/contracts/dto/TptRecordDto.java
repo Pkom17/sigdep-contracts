@@ -26,6 +26,10 @@ public record TptRecordDto(
         LocalDate tptEndDate,
         String tptOutcome,
         String tptOrderNumber,
+        // Source concept 165049 — Début / En cours / Fin / Pas de TPT
+        String tptStatus,
+        // Source concept 165319 — 3HP / 6H / INH / INH+RPT, etc.
+        String tptRegimen,
 
         // Clinical
         String adherence,

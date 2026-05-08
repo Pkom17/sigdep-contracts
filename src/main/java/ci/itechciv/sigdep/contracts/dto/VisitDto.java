@@ -56,6 +56,11 @@ public record VisitDto(
         // Coded value for "Allaitement en cours" (resolved concept name)
         String breastfeedingStatus,
 
+        // TPT (concepts 165049 / 165319) — captured on routine PEC - Suivi
+        // patient encounters, not on dedicated PEC - Suivi TPT.
+        String tptStatus,
+        String tptRegimen,
+
         Map<String, Object> extraData,
         Boolean voided
 ) {}
