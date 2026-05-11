@@ -1,7 +1,16 @@
+# Build artefacts
 target/
 *.class
 *.jar
+
+# IDE
 .idea/
 .vscode/
 *.iml
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Logs
+*.log
