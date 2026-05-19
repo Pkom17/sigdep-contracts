@@ -61,6 +61,16 @@ public record VisitDto(
         String tptStatus,
         String tptRegimen,
 
+        // IVSA (Initiative pour la Visite Sans rendez-vous Améliorée) —
+        // sub-module of the routine follow-up, activated when the patient
+        // is on the "non-stable" MSD track. msdCode is the human-readable
+        // label of concept 165063 (Standard / IVSA / Échec); the two
+        // counts are derived (number of checkboxes ticked on the alert
+        // signs / neurological signs panels).
+        String ivsaMsdCode,
+        Short ivsaAlertSignsCount,
+        Short ivsaNeuroSignsCount,
+
         Map<String, Object> extraData,
         Boolean voided
 ) {}
