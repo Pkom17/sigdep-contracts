@@ -4,7 +4,7 @@ public enum EntityType {
     PATIENTS,
     VISITS,
     DISPENSATIONS,
-    HIV_SCREENINGS,
+    SCREENINGS,
     TREATMENT_INITIATIONS,
     PTME_MOTHER,
     PTME_CHILD,
