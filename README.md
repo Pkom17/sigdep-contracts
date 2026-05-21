@@ -1,92 +1,100 @@
 # sigdep-contracts
 
-Canonical DTOs and API contracts shared between `sigdep-sync` (edge
-agent) and `sigdep-hub` (central server).
+DTOs canoniques et contrats d'API partagés entre `sigdep-sync`
+(agent côté site) et `sigdep-hub` (serveur central).
 
-This module is intentionally minimal: only Jackson annotations and
-Java records, no Spring, no JPA, no Lombok. It is published as a Maven
-artifact and consumed by both sides of the wire.
+Ce module est volontairement minimal : uniquement des annotations
+Jackson et des records Java, pas de Spring, pas de JPA, pas de
+Lombok. Il est publié comme un artefact Maven et consommé par les
+deux côtés du fil.
 
-## Place in the SIGDEP-3 platform
+## Place dans la plateforme SIGDEP-3
 
-This repo is one of three projects that make up SIGDEP-3:
+Ce dépôt est l'un des trois projets qui composent SIGDEP-3 :
 
-| Project                                                            | Role                                                                    |
-| ------------------------------------------------------------------ | ----------------------------------------------------------------------- |
-| **`sigdep-contracts`** (this repo)                                 | Shared DTOs and API contracts (Maven library)                           |
-| [`sigdep-sync`](https://github.com/ITECH-CI/sigdep-sync)           | Edge agent deployed on each site — reads local OpenMRS, pushes batches  |
-| [`sigdep-hub`](https://github.com/ITECH-CI/sigdep-hub)             | Central server — receives batches, indicators, console                  |
+| Projet                                                             | Rôle                                                                     |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------ |
+| **`sigdep-contracts`** (ce dépôt)                                  | Bibliothèque Maven : DTOs et contrats d'API partagés                     |
+| [`sigdep-sync`](https://github.com/ITECH-CI/sigdep-sync)           | Agent côté site — lit OpenMRS local, pousse les lots                     |
+| [`sigdep-hub`](https://github.com/ITECH-CI/sigdep-hub)             | Serveur central — réception des lots, indicateurs, console               |
 
-Both `sigdep-sync` (writer side) and `sigdep-hub` (reader side) depend
-on this library through their Maven `pom.xml`. **Any change here is a
-change to the wire format** and needs to land before either consumer
-ships a release that uses it.
+`sigdep-sync` (émetteur) et `sigdep-hub` (récepteur) dépendent tous
+les deux de cette bibliothèque via leur `pom.xml` Maven. **Toute
+modification ici est une modification du format de la liaison** et
+doit être livrée avant qu'un des deux consommateurs ne publie une
+release qui l'utilise.
 
-## What's in here
+## Contenu
 
-| File                    | Purpose                                                  |
-| ----------------------- | -------------------------------------------------------- |
-| `ApiVersion.java`       | Current major version of the sync API.                   |
-| `EntityType.java`       | Enum of the entity kinds a batch can carry.              |
-| `SyncBatchRequest.java` | Envelope POSTed by the agent: `batchId`, `siteCode`, `records[]`. |
-| `SyncBatchResponse.java`| Hub response: accepted / rejected counts + error sample. |
-| `dto/PatientDto.java`   | Canonical patient.                                       |
-| `dto/VisitDto.java`     | Canonical visit (follow-up encounters).                  |
-| `dto/TreatmentInitiationDto.java` | ARV initiation form.                         |
-| `dto/PediatricInitiationDto.java` | Paediatric initiation form (additional fields).  |
-| `dto/ClosureDto.java`   | "PEC - Issue" encounter (file closure).                  |
-| `dto/LabResultDto.java` | Lab result (CV, CD4, …).                                 |
-| `dto/TptRecordDto.java` | TPT follow-up or outcome encounter.                      |
-| `dto/DispensationDto.java` | ARV / cotrim dispensation (placeholder, not yet wired). |
+| Fichier                            | Rôle                                                          |
+| ---------------------------------- | ------------------------------------------------------------- |
+| `ApiVersion.java`                  | Version majeure courante de l'API de synchronisation.         |
+| `EntityType.java`                  | Énumération des types d'entités qu'un lot peut transporter.   |
+| `SyncBatchRequest.java`            | Enveloppe POSTée par l'agent : `batchId`, `siteCode`, `records[]`. |
+| `SyncBatchResponse.java`           | Réponse du hub : compteurs acceptés / rejetés + extrait d'erreurs. |
+| `dto/PatientDto.java`              | Patient canonique.                                            |
+| `dto/VisitDto.java`                | Visite canonique (encounters de suivi).                       |
+| `dto/TreatmentInitiationDto.java`  | Formulaire d'initiation ARV.                                  |
+| `dto/PediatricInitiationDto.java`  | Formulaire d'initiation pédiatrique (champs additionnels).    |
+| `dto/ClosureDto.java`              | Encounter « PEC - Issue » (clôture de dossier).               |
+| `dto/LabResultDto.java`            | Résultat de biologie (CV, CD4, …).                            |
+| `dto/TptRecordDto.java`            | Encounter de suivi ou d'issue TPT.                            |
+| `dto/DispensationDto.java`         | Dispensation ARV / cotrim (placeholder, non encore câblé).    |
 
-Every DTO carries a `sourceUuid` (the OpenMRS UUID of the original
-record) that the hub uses as the upsert key, scoped by `siteCode`.
+Chaque DTO porte un `sourceUuid` (l'UUID OpenMRS de l'enregistrement
+d'origine) que le hub utilise comme clé d'upsert, scopée par
+`siteCode`.
 
-## Build
+## Compiler
 
 ```bash
 mvn clean install
 ```
 
-That installs the artefact in your local `~/.m2`. `sigdep-sync` and
-`sigdep-hub` resolve it from there at build time.
+Cela installe l'artefact dans le `~/.m2` local. `sigdep-sync` et
+`sigdep-hub` le résolvent depuis là au moment de la compilation.
 
-## Publishing
+## Publication
 
-The artefact is consumed by two sibling projects, so its version must
-match what those projects declare in their `<dependencyManagement>`.
-Day-to-day, **`mvn install` is enough** — every developer rebuilds
-locally as needed.
+L'artefact est consommé par deux projets voisins, sa version doit
+donc correspondre à ce que ces projets déclarent dans leur
+`<dependencyManagement>`. Au quotidien, **`mvn install` suffit** :
+chaque développeur le recompile localement quand nécessaire.
 
-For shared snapshots or releases, push to a Maven registry the two
-sibling projects can pull from (GitHub Packages, internal Nexus, …) and
-update the dependency version on both consumers in a synchronised PR.
+Pour des snapshots ou releases partagés, publier sur un registre
+Maven que les deux projets voisins peuvent atteindre (GitHub
+Packages, Nexus interne, …) et mettre à jour la version de la
+dépendance sur les deux consommateurs dans une PR synchronisée.
 
-## Versioning
+## Versionning
 
-API-breaking changes (renaming a field, changing a type, dropping a
-field) require:
+Les changements cassants (renommage de champ, changement de type,
+suppression de champ) nécessitent :
 
-1. Bumping the major version of `ApiVersion`.
-2. Keeping the **previous version** of the affected DTOs available on
-   the hub side until every fielded agent has been upgraded. The hub
-   exposes endpoints versioned in the URL path (`/api/v1/sync/...`); a
-   v2 would live alongside v1 for the transition period.
-3. A coordinated rollout: build a new hub release first, deploy, then
-   roll out the agent upgrade per site.
+1. D'incrémenter la version majeure de `ApiVersion`.
+2. De garder la **version précédente** des DTOs concernés disponible
+   côté hub jusqu'à ce que chaque agent déployé soit mis à jour. Le
+   hub expose des endpoints versionnés dans l'URL (`/api/v1/sync/...`) ;
+   une v2 cohabiterait avec v1 pendant la transition.
+3. Un déploiement coordonné : publier d'abord une nouvelle release
+   du hub, déployer, puis dérouler la mise à jour des agents site
+   par site.
 
-Additive changes (new optional field, new enum value) don't require a
-version bump but should be marked optional in the consuming code.
+Les changements additifs (nouveau champ optionnel, nouvelle valeur
+d'enum) ne nécessitent pas de bump de version mais doivent être
+marqués optionnels dans le code consommateur.
 
-## Code style
+## Style de code
 
-Plain Java records. Field order matches the database column order in
-the hub (helps reviewers cross-check the upsert SQL against the DTO).
-No business logic — just data carriers. If validation logic is needed,
-it lives on the hub side (`ingestion-api`).
+Records Java simples. L'ordre des champs reflète l'ordre des
+colonnes en base côté hub (aide la relecture à croiser le SQL
+d'upsert avec le DTO). Pas de logique métier — juste des porteurs
+de données. Si une validation est nécessaire, elle vit côté hub
+(`ingestion-api`).
 
-## License
+## Licence
 
-To be decided in a plenary session with the HMIS TWG; no license file
-is shipped yet. In the meantime, treat the contents as "all rights
-reserved by I-TECH Côte d'Ivoire and the PNLS programme".
+À définir en session plénière avec le HMIS TWG ; aucun fichier de
+licence n'est livré pour l'instant. En attendant, considérer le
+contenu comme « tous droits réservés par I-TECH Côte d'Ivoire et le
+programme PNLS ».

@@ -60,6 +60,7 @@ public record TreatmentInitiationDto(
         String birthPlace,
         String educationLevel,
         String religion,
+        String profession,
 
         // Pediatric extension. Null when the enrolment is not pediatric
         // (i.e. no pediatric-specific obs were captured on the form).
